@@ -1,0 +1,297 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AI Incident Management System</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f6fb;
+            color: #1e293b;
+        }
+
+        header {
+            background: #172554;
+            color: white;
+            padding: 22px 40px;
+        }
+
+        header h1 {
+            font-size: 25px;
+        }
+
+        header p {
+            margin-top: 8px;
+            color: #cbd5e1;
+        }
+
+        .container {
+            padding: 35px 40px;
+        }
+
+        .welcome {
+            margin-bottom: 25px;
+        }
+
+        .welcome h2 {
+            font-size: 27px;
+            margin-bottom: 8px;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.06);
+        }
+
+        .card h3 {
+            color: #64748b;
+            font-size: 15px;
+        }
+
+        .card h2 {
+            margin-top: 15px;
+            font-size: 30px;
+            color: #1d4ed8;
+        }
+
+        .incident-section {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.06);
+            margin-bottom: 25px;
+        }
+
+        .incident-section h2 {
+            margin-bottom: 15px;
+        }
+
+        .incident-section p {
+            color: #64748b;
+            line-height: 1.6;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 7px;
+            font-weight: bold;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 7px;
+            font-size: 14px;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+
+        .btn {
+            display: inline-block;
+            margin-top: 20px;
+            background: #2563eb;
+            color: white;
+            padding: 12px 22px;
+            border-radius: 7px;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn:hover {
+            background: #1d4ed8;
+        }
+
+        .chatbot-btn {
+            background: #15803d;
+        }
+
+        .chatbot-btn:hover {
+            background: #166534;
+        }
+
+        footer {
+            text-align: center;
+            padding: 25px;
+            color: #64748b;
+        }
+
+        @media (max-width: 700px) {
+            .cards {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 20px;
+            }
+
+            header {
+                padding: 20px;
+            }
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <header>
+        <h1>AI Incident Management System</h1>
+        <p>Smart IT Support and Incident Tracking</p>
+    </header>
+
+    <div class="container">
+
+        <div class="welcome">
+            <h2>Welcome to Dashboard 👋</h2>
+            <p>Manage and monitor your IT incidents easily.</p>
+        </div>
+
+        <!-- Dashboard Statistics -->
+
+        <div class="cards">
+
+            <div class="card">
+                <h3>Total Incidents</h3>
+                <h2>{{ total }}</h2>
+            </div>
+
+            <div class="card">
+                <h3>Open Incidents</h3>
+                <h2>{{ open_count }}</h2>
+            </div>
+
+            <div class="card">
+                <h3>Resolved Incidents</h3>
+                <h2>{{ resolved_count }}</h2>
+            </div>
+
+        </div>
+
+        <!-- Submit Incident -->
+
+        <div class="incident-section">
+
+            <h2>Submit a New Incident</h2>
+
+            <form action="/report" method="POST">
+
+                <label>Employee Name</label>
+                <input
+                    type="text"
+                    name="employee_name"
+                    placeholder="Enter your name"
+                    required
+                >
+
+                <br><br>
+
+                <label>Incident Title</label>
+                <input
+                    type="text"
+                    name="title"
+                    placeholder="Example: Wi-Fi not working"
+                    required
+                >
+
+                <br><br>
+
+                <label>Incident Category</label>
+
+                <select name="category" required>
+                    <option value="">Select Category</option>
+                    <option value="Network">Network</option>
+                    <option value="Hardware">Hardware</option>
+                    <option value="Software">Software</option>
+                    <option value="Login Issue">Login Issue</option>
+                    <option value="Other">Other</option>
+                </select>
+
+                <br><br>
+
+                <label>Describe Your Problem</label>
+
+                <textarea
+                    name="description"
+                    placeholder="Explain your IT problem..."
+                    rows="5"
+                    required
+                ></textarea>
+
+                <br><br>
+
+                <button type="submit" class="btn">
+                    Submit Incident
+                </button>
+
+            </form>
+
+        </div>
+
+        <!-- IT Support Chatbot -->
+
+        <div class="incident-section">
+
+            <h2>IT Support Assistant 🤖</h2>
+
+            <p>
+                Facing any IT issue? Chat with our IT Support Chatbot
+                to get quick troubleshooting suggestions.
+            </p>
+
+            <a href="/chatbot" class="btn chatbot-btn">
+                Open IT Support Chatbot
+            </a>
+
+        </div>
+
+        <!-- View All Incidents -->
+
+        <div class="incident-section">
+
+            <h2>Incident Tracking</h2>
+
+            <p>
+                View all reported incidents and monitor their status.
+            </p>
+
+            <a href="/incidents" class="btn">
+                View All Incidents
+            </a>
+
+        </div>
+
+    </div>
+
+    <footer>
+        AI Incident Management System | Powered by Python Flask
+    </footer>
+
+</body>
+
+</html>

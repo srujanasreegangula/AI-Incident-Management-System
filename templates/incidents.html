@@ -1,0 +1,315 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>All IT Incidents</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f1f5f9;
+            padding: 30px;
+            color: #1e293b;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        .filter-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        input, select {
+            padding: 11px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        input {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            background: white;
+            border-radius: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1000px;
+        }
+
+        th, td {
+            padding: 14px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background: #2563eb;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background: #f8fafc;
+        }
+
+        .update-form {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .update-form select {
+            max-width: 130px;
+        }
+
+        button {
+            background: #2563eb;
+            color: white;
+            padding: 9px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #2563eb;
+            text-decoration: none;
+        }
+
+        #result-count {
+            margin-bottom: 12px;
+            color: #64748b;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 15px;
+            }
+
+            .filter-section {
+                flex-direction: column;
+            }
+
+            input, select {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>All IT Incidents</h1>
+
+    <!-- Search and Filters -->
+
+    <div class="filter-section">
+
+        <input
+            type="text"
+            id="searchInput"
+            placeholder="Search by ID, employee, title or description..."
+            onkeyup="filterIncidents()"
+        >
+
+        <select id="categoryFilter" onchange="filterIncidents()">
+            <option value="">All Categories</option>
+            <option value="Network">Network</option>
+            <option value="Hardware">Hardware</option>
+            <option value="Software">Software</option>
+            <option value="Login Issue">Login Issue</option>
+            <option value="Other">Other</option>
+        </select>
+
+        <select id="statusFilter" onchange="filterIncidents()">
+            <option value="">All Statuses</option>
+            <option value="Open">Open</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Resolved">Resolved</option>
+        </select>
+
+    </div>
+
+    <p id="result-count">Showing all incidents</p>
+
+    <!-- Incidents Table -->
+
+    <div class="table-container">
+
+        <table id="incidentTable">
+
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Employee</th>
+                    <th>Title</th>
+                    <th>Category</th>
+                    <th>Description</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                    <th>Update Status</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for incident in incidents %}
+
+                <tr class="incident-row">
+
+                    <td>INC{{ incident.id }}</td>
+
+                    <td>{{ incident.employee_name }}</td>
+
+                    <td>{{ incident.title }}</td>
+
+                    <td>{{ incident.category }}</td>
+
+                    <td>{{ incident.description }}</td>
+
+                    <td>{{ incident.priority }}</td>
+
+                    <td class="status-cell">
+                        {{ incident.status }}
+                    </td>
+
+                    <td>
+                        <form
+                            class="update-form"
+                            action="/update_status/{{ incident.id }}"
+                            method="POST"
+                        >
+
+                            <select name="status" required>
+
+                                <option value="Open"
+                                    {% if incident.status == "Open" %}selected{% endif %}>
+                                    Open
+                                </option>
+
+                                <option value="In Progress"
+                                    {% if incident.status == "In Progress" %}selected{% endif %}>
+                                    In Progress
+                                </option>
+
+                                <option value="Resolved"
+                                    {% if incident.status == "Resolved" %}selected{% endif %}>
+                                    Resolved
+                                </option>
+
+                            </select>
+
+                            <button type="submit">Update</button>
+
+                        </form>
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    <a href="/" class="back-link">← Back to Dashboard</a>
+
+    <!-- Search and Filter JavaScript -->
+
+    <script>
+
+        function filterIncidents() {
+
+            const searchValue = document
+                .getElementById("searchInput")
+                .value.toLowerCase();
+
+            const categoryValue = document
+                .getElementById("categoryFilter")
+                .value.toLowerCase();
+
+            const statusValue = document
+                .getElementById("statusFilter")
+                .value.toLowerCase();
+
+            const rows = document.querySelectorAll(".incident-row");
+
+            let visibleCount = 0;
+
+            rows.forEach(function(row) {
+
+                const rowText = row.innerText.toLowerCase();
+
+                const category = row.cells[3]
+                    .innerText.trim().toLowerCase();
+
+                const status = row.cells[6]
+                    .innerText.trim().toLowerCase();
+
+                const matchesSearch =
+                    rowText.includes(searchValue);
+
+                const matchesCategory =
+                    categoryValue === "" ||
+                    category === categoryValue;
+
+                const matchesStatus =
+                    statusValue === "" ||
+                    status === statusValue;
+
+                if (
+                    matchesSearch &&
+                    matchesCategory &&
+                    matchesStatus
+                ) {
+
+                    row.style.display = "";
+                    visibleCount++;
+
+                } else {
+
+                    row.style.display = "none";
+
+                }
+
+            });
+
+            document.getElementById("result-count").innerText =
+                "Showing " + visibleCount + " of " +
+                rows.length + " incidents";
+
+        }
+
+    </script>
+
+</body>
+</html>

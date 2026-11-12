@@ -1,0 +1,383 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AI Incident Management - Admin Dashboard</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 25px;
+            font-family: Arial, sans-serif;
+            background: #f3f5fa;
+            color: #263238;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header h1 {
+            color: #263b80;
+            margin: 0;
+        }
+
+        .logout {
+            background: #dc3545;
+            color: white;
+            padding: 11px 18px;
+            border-radius: 7px;
+            text-decoration: none;
+        }
+
+        .welcome {
+            margin-top: 25px;
+            color: #555;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 18px;
+            margin-top: 25px;
+        }
+
+        .card {
+            background: white;
+            padding: 23px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.06);
+            border-left: 5px solid #263b80;
+        }
+
+        .card h2 {
+            font-size: 30px;
+            color: #263b80;
+            margin: 0 0 10px;
+        }
+
+        .card p {
+            margin: 0;
+            color: #666;
+        }
+
+        .section-title {
+            margin-top: 38px;
+            color: #263b80;
+        }
+
+        .charts {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 22px;
+            margin-top: 20px;
+        }
+
+        .chart-card {
+            background: white;
+            padding: 22px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.06);
+            min-width: 0;
+        }
+
+        .chart-card h3 {
+            color: #263b80;
+            text-align: center;
+            margin-top: 0;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 280px;
+        }
+
+        .actions {
+            margin-top: 35px;
+        }
+
+        .actions a {
+            display: inline-block;
+            background: #263b80;
+            color: white;
+            padding: 13px 18px;
+            margin: 6px;
+            border-radius: 7px;
+            text-decoration: none;
+        }
+
+        .actions a:hover {
+            background: #17275d;
+        }
+
+        footer {
+            text-align: center;
+            color: #777;
+            margin-top: 45px;
+        }
+
+        @media(max-width: 600px) {
+            body {
+                padding: 15px;
+            }
+
+            .header h1 {
+                font-size: 23px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <h1>AI Incident Management</h1>
+        <a class="logout" href="/admin_logout">Logout</a>
+    </div>
+
+    <h3 class="welcome">Welcome, Administrator!</h3>
+
+    <!-- STATISTICS -->
+
+    <div class="stats">
+
+        <div class="card">
+            <h2>{{ total }}</h2>
+            <p>Total Incidents</p>
+        </div>
+
+        <div class="card">
+            <h2>{{ open_count }}</h2>
+            <p>Open Incidents</p>
+        </div>
+
+        <div class="card">
+            <h2>{{ in_progress_count }}</h2>
+            <p>In Progress</p>
+        </div>
+
+        <div class="card">
+            <h2>{{ resolved_count }}</h2>
+            <p>Resolved Incidents</p>
+        </div>
+
+        <div class="card">
+            <h2>{{ critical_count }}</h2>
+            <p>Critical Priority</p>
+        </div>
+
+        <div class="card">
+            <h2>{{ medium_count }}</h2>
+            <p>Medium Priority</p>
+        </div>
+
+        <div class="card">
+            <h2>{{ low_count }}</h2>
+            <p>Low Priority</p>
+        </div>
+
+    </div>
+
+    <!-- ANALYTICS -->
+
+    <h2 class="section-title">Incident Analytics</h2>
+
+    <div class="charts">
+
+        <div class="chart-card">
+            <h3>Incident Status</h3>
+            <div class="chart-container">
+                <canvas id="statusChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <h3>Priority Analysis</h3>
+            <div class="chart-container">
+                <canvas id="priorityChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <h3>Category Analysis</h3>
+            <div class="chart-container">
+                <canvas id="categoryChart"></canvas>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- NAVIGATION -->
+
+    <div class="actions">
+        <a href="/incidents">View All Incidents</a>
+        <a href="/">Employee Dashboard</a>
+        <a href="/chatbot">IT Support Chatbot</a>
+    </div>
+
+    <footer>
+        AI-Powered IT Incident Management System
+    </footer>
+
+
+    <!-- CHART.JS -->
+
+    <script>
+
+        // Status Chart
+
+        new Chart(
+            document.getElementById("statusChart"),
+            {
+                type: "doughnut",
+
+                data: {
+                    labels: [
+                        "Open",
+                        "In Progress",
+                        "Resolved"
+                    ],
+
+                    datasets: [{
+                        data: [
+                            {{ open_count }},
+                            {{ in_progress_count }},
+                            {{ resolved_count }}
+                        ],
+
+                        backgroundColor: [
+                            "#f59e0b",
+                            "#3b82f6",
+                            "#22c55e"
+                        ]
+                    }]
+                },
+
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            }
+        );
+
+
+        // Priority Chart
+
+        new Chart(
+            document.getElementById("priorityChart"),
+            {
+                type: "bar",
+
+                data: {
+                    labels: [
+                        "Critical",
+                        "Medium",
+                        "Low"
+                    ],
+
+                    datasets: [{
+                        label: "Number of Incidents",
+
+                        data: [
+                            {{ critical_count }},
+                            {{ medium_count }},
+                            {{ low_count }}
+                        ],
+
+                        backgroundColor: [
+                            "#ef4444",
+                            "#f59e0b",
+                            "#22c55e"
+                        ]
+                    }]
+                },
+
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            }
+                        }
+                    }
+                }
+            }
+        );
+
+
+        // Category Chart
+
+        new Chart(
+            document.getElementById("categoryChart"),
+            {
+                type: "bar",
+
+                data: {
+                    labels: [
+                        "Network",
+                        "Hardware",
+                        "Software",
+                        "Login Issue",
+                        "Other"
+                    ],
+
+                    datasets: [{
+                        label: "Number of Incidents",
+
+                        data: [
+                            {{ network_count }},
+                            {{ hardware_count }},
+                            {{ software_count }},
+                            {{ login_count }},
+                            {{ other_count }}
+                        ],
+
+                        backgroundColor: [
+                            "#6366f1",
+                            "#14b8a6",
+                            "#f97316",
+                            "#8b5cf6",
+                            "#64748b"
+                        ]
+                    }]
+                },
+
+                options: {
+                    indexAxis: "y",
+                    responsive: true,
+                    maintainAspectRatio: false,
+
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            }
+                        }
+                    }
+                }
+            }
+        );
+
+    </script>
+
+</body>
+</html>
